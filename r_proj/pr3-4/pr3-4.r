@@ -38,8 +38,8 @@ perc <- c(23, 56, 20, 63)
 labels <- c("diyalnist'1", "diyalnist'2", "diyalnist'3", "diyalnist'4")
 
 piepercent <- round(100 * perc / sum(perc), 1)
- print(piepercent)
+print(piepercent)
 pie(perc, labels = piepercent,
-    main = "City pie chart", col = rainbow(length(perc)))
-    legend("topright", labels,
-    cex = 0.5, fill = rainbow(length(perc)))
+    main = "chito drito",
+    col = rainbow(length(perc)))
+legend("topright", labels, cex = 0.5, fill = rainbow(length(perc)))
