@@ -1,37 +1,23 @@
 import asyncio
 import logging
-import sys
-from aiogram import Bot, Dispatcher, types, F
-from aiogram.types import Message
-from aiogram.filters.command import CommandStart
-from aiogram.utils.keyboard import ReplyKeyboardBuilder
-
-bot_token = '8038249268:AAHosbt5zuaBC54KFrnjV-LLJ9zkFSMT0IQ'
-bot = Bot(token= bot_token)
-dp = Dispatcher()
-
-@dp.message(CommandStart())
-async def cmd_start(message: Message):
-    kb = [
-        [types.KeyboardButton(text='⚡️ Get Fueled')]
-        [types.KeyboardButton(text='💎 Drop a Code')]
-        [types.KeyboardButton(text='📦 Grab a Pack')]
-        [types.KeyboardButton(text='🏆 My Stats')]
-        [types.KeyboardButton(text='📍 Find Omega')]
-        [types.KeyboardButton(text='❓ The Formula')]
-        [types.KeyboardButton(text='🎧 Vibe Check')]
-    ]
-    await message.answer('Welcome to the Omega Realm, [User Name]! ⚡️ Ready to crush your goals or just need a massive recharge? Pick your fuel below.')
-
-@dp.message()
-async def echo(message):
-    await message.send_copy(chat_id=message.from_user.id)
-
+from aiogram import Bot, Dispatcher, F
+from bot.config import config
+from bot.handlers import start_handler
+from bot.handlers import promo_handler
+from bot.handlers import catalog_handler
 
 async def main():
+    logging.basicConfig(level=logging.DEBUG)
+
+    bot = Bot(token=config.bot_token.get_secret_value())
+    dp = Dispatcher()
+
+    dp.include_router(start_handler.router)
+    dp.include_router(promo_handler.router)
+    dp.include_router(catalog_handler.router)
+    await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot)
-
-
+    
 if __name__ == '__main__':
     try:
         import asyncio

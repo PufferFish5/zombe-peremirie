@@ -34,12 +34,12 @@ lines(x = c(1, 2), y = c(5, 0), col = "red", lwd = 2)
 lines(x = c(2, 3), y = c(0, 5), col = "blue", lwd = 2)
 
 #4)
-perc <- c(23, 56, 20, 63)
-labels <- c("diyalnist'1", "diyalnist'2", "diyalnist'3", "diyalnist'4")
+#perc <- c(23, 56, 20, 63)
+#labels <- c("diyalnist'1", "diyalnist'2", "diyalnist'3", "diyalnist'4")
 
-piepercent <- round(100 * perc / sum(perc), 1)
-print(piepercent)
-pie(perc, labels = piepercent,
-    main = "chito drito",
-    col = rainbow(length(perc)))
-legend("topright", labels, cex = 0.5, fill = rainbow(length(perc)))
+#piepercent <- round(100 * perc / sum(perc), 1)
+#print(piepercent)
+#pie(perc, labels = piepercent,
+#    main = "chito drito",
+#    col = rainbow(length(perc)))
+#legend("topright", labels, cex = 1.5, fill = rainbow(length(perc)))
