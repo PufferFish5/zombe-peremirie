@@ -2,6 +2,7 @@ from aiogram import Router, types, F
 from aiogram.fsm.context import FSMContext
 from bot.states.promo_state import PromoStates
 from bot.keyboards.reply import get_main_menu, get_cancel_menu
+from bot.databases import requests as rq
 
 router = Router()
 
@@ -26,6 +27,7 @@ async def process_code(message: types.Message, state: FSMContext):
     code = message.text
     if len(code) == 8:
         await state.clear()
+        await rq.add_points(message.from_user.id, 10),
         await message.answer(
             f"Locked in! **{code}** is valid. +10 Points added to your vault!",
             reply_markup=get_main_menu(),
