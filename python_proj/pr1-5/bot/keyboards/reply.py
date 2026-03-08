@@ -33,13 +33,25 @@ def get_cancel_menu() -> ReplyKeyboardMarkup:
     builder.add(KeyboardButton(text="🔙 Back to Menu"))
     return builder.as_markup(resize_keyboard=True)
 
-def get_phone_keyboard():
+def get_phone_menu():
     kb = [
         [KeyboardButton(text="📱 Share Phone Number", request_contact=True)],
-        [KeyboardButton(text="🔙 Cancel Order")]
+        [KeyboardButton(text="🔙 Back to Menu")]
     ]
     return ReplyKeyboardMarkup(
         keyboard=kb,
         resize_keyboard=True,
         one_time_keyboard=True
     )
+
+def get_confirmation_menu():
+    kb = [
+        [KeyboardButton(text="🚚 Confirm Order")],
+        [KeyboardButton(text="🔙 Back to Menu")]
+    ]
+    return ReplyKeyboardMarkup(
+        keyboard=kb,
+        resize_keyboard=True,
+        one_time_keyboard=True
+    )
+

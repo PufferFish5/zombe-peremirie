@@ -9,6 +9,17 @@ async def set_user(tg_id: int):
             session.add(User(tg_id=tg_id))
             await session.commit()
 
+async def update_user_profile(tg_id: int, name: str, phone: str, email: str):
+    async with async_session() as session:
+        await session.execute(
+            update(User).where(User.tg_id == tg_id).values(
+                name=name,
+                phone=phone,
+                email=email
+            )
+        )
+        await session.commit()
+
 async def get_user_stats(tg_id: int):
     async with async_session() as session:
         return await session.scalar(select(User).where(User.tg_id == tg_id))
@@ -50,4 +61,13 @@ async def seed_drinks():
 async def get_drinks_by_series(series_type: str):
     async with async_session() as session:
         result = await session.execute(select(Drink).where(Drink.series == series_type))
+        return result.scalars().all()
+
+async def get_drink_by_id(drink_id: int):
+    async with async_session() as session:
+        return await session.get(Drink, drink_id)
+
+async def get_all_profiles():
+    async with async_session() as session:
+        result = await session.execute(select(User).where(User.name.is_not(None)))
         return result.scalars().all()

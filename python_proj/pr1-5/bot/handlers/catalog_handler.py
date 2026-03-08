@@ -14,6 +14,7 @@ async def catalogue_series(message: types.Message, state: FSMContext):
     await state.set_state(CatalogStates.series_choice)
     await message.answer_photo(
         photo=FSInputFile("bot/media/news1.jpg"),
+#        photo='AgACAgIAAxkBAAIBvGmmwXPU8L9dxAmuGlehs-f0_j-MAAKBGGsbUYEwSbsRJtsXFJIxAQADAgADeQADOgQ',
         caption="Check out our elite lineup. Which vibe are you feeling today?",
         reply_markup=get_series_menu())
     
@@ -36,6 +37,12 @@ async def catalogue_series(message: types.Message, state: FSMContext):
 async def show_series(callback: types.CallbackQuery):
     series_type = callback.data.split("_")[1]
     drinks = await rq.get_drinks_by_series(series_type)
+    # series_content = {
+    #     "tropical": {"text": "Neon lights and retro vibes", "photo": "AgACAgIAAxkBAAIBvmmmwy8TKCoGaK_SnV-0oyoxgiQiAAKNGGsbUYEwSSiVoUhlYJmWAQADAgADeQADOgQ"},
+    #     "noir": {"text": "Classic taste for deep thinkers.", "photo": "bAgACAgIAAxkBAAIBwGmmw0MVY9DxS4zI22-c3TUyt_PWAAKOGGsbUYEwST5cPKzdg3jgAQADAgADeQADOgQ"},
+    #     "thug": {"text": "Powerful punch for the bold.", "photo": "bAgACAgIAAxkBAAIBwmmmw1Sl9DqjzRFyOE3gr96dwK_DAAKPGGsbUYEwSc2JwQFUb3YkAQADAgADeQADOgQ"},
+    #     "og": {"text": "Where it all started.", "photo": "AgACAgIAAxkBAAIBxGmmw3_YoCDKcHe_39y3RFMjafK5AAKQGGsbUYEwSZr_EzFKbuy5AQADAgADeQADOgQ"}
+    # }
     series_content = {
         "tropical": {"text": "Neon lights and retro vibes", "photo": "bot/media/series1_back_text.png"},
         "noir": {"text": "Classic taste for deep thinkers.", "photo": "bot/media/series2_back_text.png"},
@@ -53,26 +60,12 @@ async def show_series(callback: types.CallbackQuery):
     )
     await callback.answer()
 
-@router.callback_query(F.data.startswith("drink_"))
-async def start_order(callback: types.CallbackQuery, state: FSMContext):
-    drink_id = callback.data.split("_")[1]
-    
-    await state.update_data(chosen_drink_id=drink_id)
-    await state.set_state(OrderStates.waiting_for_name)
-    
-    await callback.message.answer(
-        "⚡️ Great choice! Let's get your fuel ready.\n"
-        "First, **what's your name?**",
-        reply_markup=get_cancel_menu(),
-        parse_mode="Markdown"
-    )
-    await callback.answer()
-
 @router.callback_query(F.data == "back_to_series")
 async def go_back_to_series(callback: types.CallbackQuery):
     await callback.message.edit_media(
         media=types.InputMediaPhoto(
             media=FSInputFile("bot/media/news1.jpg"),
+#            media='AgACAgIAAxkBAAIBvGmmwXPU8L9dxAmuGlehs-f0_j-MAAKBGGsbUYEwSbsRJtsXFJIxAQADAgADeQADOgQ',
             caption="Pick your vibe again, champ!"
         ),
         reply_markup=get_series_menu()
@@ -83,3 +76,8 @@ async def go_back_to_series(callback: types.CallbackQuery):
 async def get_photo_file_id(message: types.Message):
     photo_id = message.photo[-1].file_id
     await message.reply(photo_id, parse_mode="HTML")
+
+@router.message(F.video)
+async def get_video_note_file_id(message: types.Message):
+    file_id = message.video.file_id
+    await message.reply(file_id, parse_mode="HTML")

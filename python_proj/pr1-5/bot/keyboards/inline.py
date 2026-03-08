@@ -65,3 +65,15 @@ def get_vibe_menu():
     builder.button(text="📺 YouTube Music", url="https://music.youtube.com/")
     builder.adjust(1)
     return builder.as_markup()
+
+def get_profile_choise_menu():
+    builder = InlineKeyboardBuilder()
+    builder.button(text="✅ Use saved profile", callback_data="use_saved_true")
+    builder.button(text="✍️ Edit details", callback_data="use_saved_false")
+    return builder.as_markup()
+
+def get_save_profile_menu():
+    builder = InlineKeyboardBuilder()
+    builder.button(text="Yes, save it.", callback_data="save_yes")
+    builder.button(text="No, just this once", callback_data="save_no")
+    return builder.as_markup()
