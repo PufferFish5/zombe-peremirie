@@ -1,4 +1,4 @@
-from bot.databases.models import async_session, User, Drink
+from bot.databases.models import async_session, User, Drink, Order
 from sqlalchemy import select, update
 
 async def set_user(tg_id: int):
@@ -8,6 +8,7 @@ async def set_user(tg_id: int):
         if not user:
             session.add(User(tg_id=tg_id))
             await session.commit()
+            print(f"New user registered: {tg_id}")
 
 async def update_user_profile(tg_id: int, name: str, phone: str, email: str):
     async with async_session() as session:
@@ -71,3 +72,15 @@ async def get_all_profiles():
     async with async_session() as session:
         result = await session.execute(select(User).where(User.name.is_not(None)))
         return result.scalars().all()
+    
+async def add_order(user_tg_id: int, drink_id: int, address: str):
+    async with async_session() as session:
+        new_order = Order(
+            user_tg_id = user_tg_id,
+            drink_id = drink_id,
+            address = address
+        )
+        session.add(new_order)
+        await session.commit()
+        await session.refresh(new_order)
+        return new_order.id

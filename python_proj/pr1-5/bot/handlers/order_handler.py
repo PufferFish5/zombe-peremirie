@@ -78,7 +78,7 @@ async def process_phone(message: types.Message, state: FSMContext):
         phone = message.contact.phone_number
     else:
         phone = message.text
-        if not phone.replace('+', '').isdigit():
+        if not (10 <= len(phone.replace('+', '')) <= 13):
             await message.answer("That doesn't look like a phone number. Please try again or use the button!")
             return
     await state.update_data(phone=phone)
@@ -91,8 +91,9 @@ async def process_phone(message: types.Message, state: FSMContext):
 
 @router.message(OrderStates.waiting_for_email)
 async def process_email(message: types.Message, state: FSMContext):
-    email=message.text
-    if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
+    email=message.text.strip()
+    EMAIL_REGEX = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
+    if not re.match(EMAIL_REGEX, email):
         await message.answer("Wait! That doesn't look like a valid email. Please try again.")
         return
     await state.update_data(email=email)
@@ -126,7 +127,13 @@ async def process_address(message: types.Message, state: FSMContext):
 async def finish_order(message: types.Message, state: FSMContext):
     data = await state.get_data()
     is_profile_saved = data.get("is_profile_saved", False)
-    # await rq.add_order(data)
+
+    order_id = await rq.add_order(
+        user_tg_id = message.from_user.id,
+        drink_id = int(data['chosen_drink_id']),
+        address = data['address']
+    )
+    
     if is_profile_saved:
         await state.clear()
         await message.answer(
