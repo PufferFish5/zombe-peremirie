@@ -1,23 +1,50 @@
 import 'package:flutter/material.dart';
-class AddScreen extends StatelessWidget {
+import '../models/task.dart';
+class AddScreen extends StatefulWidget {
   const AddScreen({super.key});
   @override
+  State<AddScreen> createState() => _AddScreenState();
+}
+class _AddScreenState extends State<AddScreen> {
+  final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
+
+
+  String _selectedCategory = 'Work';
+  DateTime _selectedDate = DateTime.now();
+  String _selectedPriority = 'High';
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _descriptionController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _selectDate(BuildContext context) async {
+    DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate,
+      firstDate: DateTime(2024),
+      lastDate: DateTime(2030),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(colorScheme: const ColorScheme.dark(onPrimary: Colors.white, primary: Color(0xFFF3701E), onSurface: Colors.white, surface: Color(0xFF1A1A1A))),
+          child: child!,
+        );
+      },
+    );
+    if (picked != null && picked != _selectedDate) {
+      setState(() {
+        _selectedDate = picked;
+      });
+    }
+  }
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
-        ),
         title: const Text('Add Task'),
         centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.create),
-            onPressed: () {
-            },
-          ),
-        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20.0),
@@ -28,6 +55,7 @@ class AddScreen extends StatelessWidget {
             const Text('Task name', style: TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 10),
             TextField(
+              controller: _titleController,
               decoration: InputDecoration(
                 hintText: 'Enter the task name',
                 border: UnderlineInputBorder(),
@@ -41,6 +69,7 @@ class AddScreen extends StatelessWidget {
               'Description', style: TextStyle(fontWeight: FontWeight.bold),),
             const SizedBox(height: 10),
             TextField(
+              controller: _descriptionController,
               maxLines: 5,
               decoration: InputDecoration(
                 hintText: 'Enter task description',
@@ -68,20 +97,24 @@ class AddScreen extends StatelessWidget {
             //calend
             const SizedBox(height: 25,),
             const Text('To do before', style: TextStyle(fontWeight: FontWeight.bold),),
-            const SizedBox(height: 10),
+            SizedBox(height: 10),
             InkWell(
-              onTap: (){},
+              onTap: () async {
+                await _selectDate(context);
+              },
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
                 decoration: BoxDecoration(
                   border: Border.all(color: Colors.grey),
                   borderRadius: BorderRadius.circular(15),
                 ),
-                child: const Row(
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Choose date', style: TextStyle(color: Colors.grey),),
-                    Icon(Icons.calendar_today, color: Colors.grey,)
+                    Text("${_selectedDate.day}.${_selectedDate.month}.${_selectedDate.year}", 
+                      style: const TextStyle(color: Colors.grey),
+                    ),
+                    const Icon(Icons.calendar_today, color: Colors.grey,)
                   ],
                 )
               ),
@@ -147,7 +180,17 @@ class AddScreen extends StatelessWidget {
           width: double.infinity,
           height: 55,
           child: ElevatedButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () {
+              final newTask = Task(
+                id: DateTime.now().millisecondsSinceEpoch.toString(),
+                title: _titleController.text,
+                description: _descriptionController.text,
+                category: _selectedCategory,
+                date: _selectedDate,
+                priority: _selectedPriority,
+              );
+              Navigator.pop(context, newTask);
+            },
             style: ElevatedButton.styleFrom(
               backgroundColor: Theme.of(context).colorScheme.surface,
               foregroundColor: Theme.of(context).colorScheme.onPrimary,
@@ -167,6 +210,7 @@ class AddScreen extends StatelessWidget {
 
     );
   }
+}
   Widget _buildCategoryIcon(IconData icon, String label, Color color) {
     return Column(
       children: [
@@ -204,6 +248,6 @@ class AddScreen extends StatelessWidget {
       ),
     );
   }
-}
+
 //ne prigodilos
 //enum Categ { work, personal, study, shopping }
