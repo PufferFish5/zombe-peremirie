@@ -128,25 +128,25 @@ class _AddScreenState extends State<AddScreen> {
             //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
             //   children: [
             //     Expanded(
-            //       child: _buildPriorityChipStatic('Low', Colors.green, true),
+            //       child: _buildPriorityChip('Low', Colors.green, true),
             //     ),
             //     const SizedBox(width: 8),
             //     Expanded(
-            //       child: _buildPriorityChipStatic('Medium', Colors.yellow, false),
+            //       child: _buildPriorityChip('Medium', Colors.yellow, false),
             //     ),
             //     const SizedBox(width: 8),
-            //     Expanded(child: _buildPriorityChipStatic('High', Colors.red, false),
+            //     Expanded(child: _buildPriorityChip('High', Colors.red, false),
             //     ),   
             //   ],
             // ),
             Row( 
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                _buildPriorityChipStatic('Low', Colors.green, true),
+                _buildPriorityChip('Low', Colors.green, true),
                 const SizedBox(width:10),
-                _buildPriorityChipStatic('Medium', Colors.yellow, true),
+                _buildPriorityChip('Medium', Colors.yellow, true),
                 const SizedBox(width:10),
-                _buildPriorityChipStatic('High', Colors.red, true),
+                _buildPriorityChip('High', Colors.red, true),
               ],
             ),
             // const SizedBox(height:25),
@@ -228,7 +228,7 @@ class _AddScreenState extends State<AddScreen> {
       ],
     );
   }
-  Widget _buildPriorityChipStatic(String label, Color color, bool isSelected) {  
+  Widget _buildPriorityChip(String label, Color color, bool isSelected) {  
     return ChoiceChip(
       label: Text(label),
       selected: isSelected, 

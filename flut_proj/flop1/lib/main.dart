@@ -248,7 +248,7 @@ Widget _buildPopularGrid() {
               child: Container(
                 margin: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  //color: Colors.blue.withOpacity(0.1),
+                  //color: Colors.blue.withAlpha(25),
                   borderRadius: BorderRadius.circular(15),
                 ),
                 child: const Icon(Icons.image, color: Colors.blue),
