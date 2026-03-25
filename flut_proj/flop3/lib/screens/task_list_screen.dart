@@ -124,6 +124,7 @@ class _ListScreenState extends State<ListScreen> {
             label: 'Profile',
           ),
         ],
+        backgroundColor: Theme.of(context).colorScheme.primary,
       ),
     );
   }
