@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/task.dart';
+import '../utils/dialogs.dart';
 class ListScreen extends StatefulWidget {
   const ListScreen({super.key});
   @override
@@ -51,6 +52,14 @@ class _ListScreenState extends State<ListScreen> {
       _tasks.removeWhere((task) => task.id == id);
     });
   }
+  void _updateTask(Task updatedTask) {
+    setState(() {
+      final index = _tasks.indexWhere((task) => task.id == updatedTask.id);
+      if (index != -1) {
+        _tasks[index] = updatedTask;
+      }
+    });
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -75,6 +84,14 @@ class _ListScreenState extends State<ListScreen> {
             margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
             color: Theme.of(context).colorScheme.surface.withAlpha(50),
             child: ListTile(
+              onTap: () async {
+                final result = await Navigator.pushNamed(context, '/details', arguments: task);
+                if (result == "delete") {
+                  _deleteTask(task.id);
+                } else if (result != null && result is Task) {
+                  _updateTask(result);
+                }
+              },
               leading: Checkbox(value: task.isCompleted, onChanged: (value) {_toggleTaskStatus(task.id);}),
               title: Text(
                 task.title,
@@ -83,21 +100,18 @@ class _ListScreenState extends State<ListScreen> {
                 ),
               ),
               subtitle: Text(task.category),
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Icon(Icons) potom potom nado chekanie na tip zadachi
-                  IconButton(
-                    onPressed: () {_deleteTask(task.id);}, 
-                    icon: const Icon(Icons.delete, color: Colors.red,)
-                  ),
-
-                ]
-              )
-            ),
+              trailing: IconButton(
+                icon: const Icon(Icons.delete, color: Colors.red),
+                onPressed: () async {
+                  final bool ? confirmed = await showDeleteConfirmationDialog(context, task.title);
+                  if (confirmed == true) {
+                    _deleteTask(task.id);
+                  }
+                }
+              ),
+            )
           );
         },
-
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: 0,

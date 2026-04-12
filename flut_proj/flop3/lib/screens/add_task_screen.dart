@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
 import '../models/task.dart';
 class AddScreen extends StatefulWidget {
-  const AddScreen({super.key});
+  final Task? taskToEdit;
+  const AddScreen({super.key, this.taskToEdit});
   @override
   State<AddScreen> createState() => _AddScreenState();
 }
 class _AddScreenState extends State<AddScreen> {
+  bool _isTitleNotEmpty = false;
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
 
 
   String _selectedCategory = 'Work';
   DateTime _selectedDate = DateTime.now();
-  String _selectedPriority = 'High';
+  String _selectedPriority = 'Low';
 
   @override
   void dispose() {
@@ -20,7 +22,18 @@ class _AddScreenState extends State<AddScreen> {
     _descriptionController.dispose();
     super.dispose();
   }
-
+  @override
+  void initState() {
+    super.initState();
+    if (widget.taskToEdit != null) {
+      _titleController.text = widget.taskToEdit!.title;
+      _descriptionController.text = widget.taskToEdit!.description;
+      _selectedCategory = widget.taskToEdit!.category;
+      _selectedDate = widget.taskToEdit!.date;
+      _selectedPriority = widget.taskToEdit!.priority;
+      _isTitleNotEmpty = true;
+    }
+  }
   Future<void> _selectDate(BuildContext context) async {
     DateTime? picked = await showDatePicker(
       context: context,
@@ -29,7 +42,10 @@ class _AddScreenState extends State<AddScreen> {
       lastDate: DateTime(2030),
       builder: (context, child) {
         return Theme(
-          data: Theme.of(context).copyWith(colorScheme: const ColorScheme.dark(onPrimary: Colors.white, primary: Color(0xFFF3701E), onSurface: Colors.white, surface: Color(0xFF1A1A1A))),
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.dark(
+              onPrimary: Colors.white, primary: Color(0xFFF3701E), onSurface: Colors.white, surface: Color(0xFF1A1A1A))
+              ),
           child: child!,
         );
       },
@@ -56,6 +72,7 @@ class _AddScreenState extends State<AddScreen> {
             const SizedBox(height: 10),
             TextField(
               controller: _titleController,
+              onChanged: (value) => setState(() => _isTitleNotEmpty = value.trim().isNotEmpty),
               decoration: InputDecoration(
                 hintText: 'Enter the task name',
                 border: UnderlineInputBorder(),
@@ -84,13 +101,13 @@ class _AddScreenState extends State<AddScreen> {
             const SizedBox(height: 10),
             Row(mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                _buildCategoryIcon(Icons.work, "Work", Colors.grey),
+                _buildCategoryIcon(Icons.work, "Work", Color(0xFFF3701E)),
                 const SizedBox(width:10),
                 _buildCategoryIcon(Icons.person, "Personal", Color(0xFFF3701E)),
                 const SizedBox(width:10),
-                _buildCategoryIcon(Icons.school, "Study", Colors.grey),
+                _buildCategoryIcon(Icons.school, "Study", Color(0xFFF3701E)),
                 const SizedBox(width:10),
-                _buildCategoryIcon(Icons.favorite, "Other", Colors.grey),
+                _buildCategoryIcon(Icons.more_horiz, "Other", Color(0xFFF3701E)),
               ],
             ),
 
@@ -142,11 +159,11 @@ class _AddScreenState extends State<AddScreen> {
             Row( 
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                _buildPriorityChip('Low', Colors.green, true),
+                _buildPriorityChip('Low', "Low", Colors.green),
                 const SizedBox(width:10),
-                _buildPriorityChip('Medium', Colors.yellow, true),
+                _buildPriorityChip('Medium', "Medium", Colors.yellow),
                 const SizedBox(width:10),
-                _buildPriorityChip('High', Colors.red, true),
+                _buildPriorityChip('High', "High", Colors.red),
               ],
             ),
             // const SizedBox(height:25),
@@ -173,6 +190,7 @@ class _AddScreenState extends State<AddScreen> {
         )
       ),
 
+
       //Add button
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.fromLTRB(20, 0, 20, 30), 
@@ -180,17 +198,18 @@ class _AddScreenState extends State<AddScreen> {
           width: double.infinity,
           height: 55,
           child: ElevatedButton(
-            onPressed: () {
+            onPressed: _isTitleNotEmpty ? () {
               final newTask = Task(
-                id: DateTime.now().millisecondsSinceEpoch.toString(),
+                id: widget.taskToEdit?.id ?? DateTime.now().millisecondsSinceEpoch.toString(),
                 title: _titleController.text,
                 description: _descriptionController.text,
                 category: _selectedCategory,
                 date: _selectedDate,
                 priority: _selectedPriority,
+                isCompleted: widget.taskToEdit?.isCompleted ?? false,
               );
               Navigator.pop(context, newTask);
-            },
+            } : null,
             style: ElevatedButton.styleFrom(
               backgroundColor: Theme.of(context).colorScheme.surface,
               foregroundColor: Theme.of(context).colorScheme.onPrimary,
@@ -210,29 +229,49 @@ class _AddScreenState extends State<AddScreen> {
 
     );
   }
-}
+
   Widget _buildCategoryIcon(IconData icon, String label, Color color) {
-    return Column(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            //color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: color, width: 1.5)
+    final bool isSelected = _selectedCategory == label;
+    return GestureDetector(
+      onTap: () {
+        setState(() { _selectedCategory = label;});
+      },
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: isSelected ? color.withAlpha(50) : color.withAlpha(10),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: isSelected ? color : Colors.grey, width:2)
+            ),
+            child: Icon(icon, color: isSelected ? color : Colors.grey),
           ),
-          child: Icon(icon, color: color),
-        ),
-        const SizedBox(height: 5),
-        Text(label, style: const TextStyle(fontSize: 12, color: Colors.grey)),
-      ],
+          const SizedBox(height:25),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 12,
+              color: isSelected ? color : Colors.grey,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+            )
+          )
+        ],
+      ),
     );
   }
-  Widget _buildPriorityChip(String label, Color color, bool isSelected) {  
+  Widget _buildPriorityChip(String label, String value, Color color) {  
+    final bool isSelected = _selectedPriority == value;
     return ChoiceChip(
       label: Text(label),
       selected: isSelected, 
-      onSelected: (bool selected) {},
+      onSelected: (bool selected) {
+        if (selected) {
+          setState(() {
+            _selectedPriority = value;
+          });
+        }
+      },
       selectedColor: color.withAlpha(150),
       checkmarkColor: color,
       //padding: const EdgeInsets.symmetric(horizontal:20, vertical:8),
@@ -251,3 +290,4 @@ class _AddScreenState extends State<AddScreen> {
 
 //ne prigodilos
 //enum Categ { work, personal, study, shopping }
+}

@@ -1,14 +1,53 @@
+import 'package:flop3/screens/add_task_screen.dart';
 import 'package:flutter/material.dart';
-class DetailScreen extends StatelessWidget {
+import '../models/task.dart';
+import '../utils/dialogs.dart';
+
+class DetailScreen extends StatefulWidget {
   const DetailScreen({super.key});
-@override
+
+  @override
+  State<DetailScreen> createState() => _DetailScreenState();
+}
+
+class _DetailScreenState extends State<DetailScreen> {
+
   Widget build(BuildContext context) {
+    final task = ModalRoute.of(context)!.settings.arguments as Task;
+
+    Map<String, dynamic> _getCategoryStyle(String category) {
+      switch (category) {
+        case 'Work':
+          return {'icon': Icons.work, 'color':  Color(0xFFF3701E)};
+        case 'Personal':
+          return {'icon': Icons.person, 'color':  Color(0xFFF3701E)};
+        case 'Study':
+          return {'icon': Icons.school, 'color':  Color(0xFFF3701E)};
+        default:
+          return {'icon': Icons.more_horiz, 'color':  Color(0xFFF3701E)};
+      }
+    }
+
+    Color _getPriorityColor(String priority) {
+      switch (priority) {
+        case 'High':
+          return Colors.red;
+        case 'Medium':
+          return Colors.yellow;
+        case 'Low':
+          return Colors.green;
+        default:
+          return Colors.grey;
+      }
+    }
+    final categoryStyle = _getCategoryStyle(task.category);
+    final priorityColor = _getPriorityColor(task.priority);
+
     return Scaffold(
-      
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => Navigator.pop(context, task),
         ),
         title: const Text('Task Details'),
         centerTitle: true,
@@ -24,13 +63,13 @@ class DetailScreen extends StatelessWidget {
             CircleAvatar(
               radius: 60,
               backgroundColor: Color(0xFFFFF1E6),
-              child: Icon(Icons.business_center, size: 60, color: Theme.of(context).colorScheme.secondary),
+              child: Icon(categoryStyle['icon'], size: 60, color: categoryStyle['color']),
             ),
             const SizedBox(height: 20),
 
             //Task name
-            const Text(
-              'Lorem ipsum dolor sit amet',
+            Text(
+              task.title,
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
@@ -40,9 +79,9 @@ class DetailScreen extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                _buildTag(Icons.work, 'Work', Theme.of(context).colorScheme.secondary),
+                _buildTag(categoryStyle['icon'], task.category, categoryStyle['color']),
                 const SizedBox(width: 10),
-                _buildTag(Icons.priority_high, 'High Priority', Colors.red),
+                _buildTag(Icons.priority_high, task.priority, priorityColor),
               ],
             ),
             const SizedBox(height: 30),
@@ -61,7 +100,7 @@ class DetailScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 10),
                   Text(
-                    'Consectetur adipiscing elit. Phasellus a ipsum arcu. Morbi eu interdum sapien. Aenean rhoncus viverra libero sollicitudin molestie. In vitae consequat velit. Curabitur tincidunt ullamcorper felis...',
+                    task.description.isNotEmpty ? task.description : 'No description provided.',
                     style: TextStyle(color: Colors.white, height: 1.5),
                   ),
                 ],
@@ -74,7 +113,7 @@ class DetailScreen extends StatelessWidget {
                 children: [
                   _buildDateItem(Icons.edit_note, 'Created', '10.03.2026  14:30', Colors.green),
                   const Divider(height: 30),
-                  _buildDateItem(Icons.calendar_today, 'Deadline', '15.03.2026  18:00', Colors.red),
+                  _buildDateItem(Icons.calendar_today, 'Deadline', '${task.date.day}.${task.date.month}.${task.date.year} ${task.date.hour}:${task.date.minute}', Colors.red),
                 ],
               ),
             ),
@@ -86,7 +125,11 @@ class DetailScreen extends StatelessWidget {
                   Icon(Icons.check_circle, color: Theme.of(context).colorScheme.secondary),
                   const SizedBox(width: 10),
                   const Expanded(child: Text('Status', style: TextStyle(fontSize: 16))),
-                  Switch(value: false, onChanged: (val) {}),
+                  Switch(value: task.isCompleted, onChanged: (value) {
+                    setState(() {
+                      task.isCompleted = value;
+                    });
+                  }),
                 ],
               ),
             ),
@@ -100,7 +143,12 @@ class DetailScreen extends StatelessWidget {
           children: [
             Expanded(
               child: ElevatedButton.icon(
-                onPressed: () {},
+                onPressed: () async {
+                  final updatedTask = await Navigator.push(context, MaterialPageRoute(builder: (context) => AddScreen(taskToEdit: task)));
+                  if (updatedTask != null && updatedTask is Task) {
+                    Navigator.pop(context, updatedTask);
+                  }
+                },
                 icon: const Icon(Icons.edit),
                 label: const Text('Edit'),
                 style: ElevatedButton.styleFrom(
@@ -115,7 +163,12 @@ class DetailScreen extends StatelessWidget {
             const SizedBox(width: 15),
             Expanded(
               child: ElevatedButton.icon(
-                onPressed: () {},
+                onPressed: () async {
+                  final bool? confirmed = await showDeleteConfirmationDialog(context, task.title);
+                  if (confirmed == true) {
+                    Navigator.pop(context, "delete");
+                  }
+                },
                 icon: const Icon(Icons.delete),
                 label: const Text('Delete'),
                 style: ElevatedButton.styleFrom(
