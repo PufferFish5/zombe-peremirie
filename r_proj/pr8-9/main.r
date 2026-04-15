@@ -75,12 +75,6 @@ str(cryptos_price)
 
 #PR8 9, prophet
 print("Step 1 (prophet)")
-# iota_price <- cryptos_price |>
-#   filter(coin == "iota") |>
-#   mutate(ds = ymd(ds)) |>
-#   select(ds, y) |>
-#   distinct(ds, .keep_all = TRUE)
-# summary(iota_price)
 
 iota_price <- cryptos_price |>
   filter(coin == "iota") |>
@@ -97,16 +91,6 @@ iota_test <- iota_price |>
   tail(100) |>
   as.data.frame()
 
-# iota_train <- iota_price |>
-#   mutate(y = log(y)) |>
-#   slice(1:(n() - 300)) |>
-#   as.data.frame()
-
-# iota_test <- iota_price |>
-#   mutate(y = log(y), ds = as.Date(ds)) |>
-#   tail(300) |>
-#   as.data.frame()
-
 iota_train |>
   ggplot(aes(ds, y)) + geom_line() + theme_minimal() + labs(title = "Training Data", x = "Date", y = "Log Price")
 ggsave("iota_train_plot.png", width = 10, height = 6, dpi = 300)
@@ -115,6 +99,7 @@ iota_test |>
   ggplot(aes(ds, y)) + geom_line() + theme_minimal() + labs(title = "Test Data", x = "Date", y = "Log Price")
 ggsave("iota_test_plot.png", width = 10, height = 6, dpi = 300)
 M0 <- prophet(iota_train)
+print("M0 result")
 str(M0)
 future_df <- make_future_dataframe(M0, periods = 100)
 forecast_M0 <- predict(M0, future_df)
